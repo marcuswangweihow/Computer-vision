@@ -1,7 +1,9 @@
-# Computer-vision
+# Installation and specifications
+
+All notebooks use Python 3.11.13
 
 Setup PyTorch with CUDA: <br><br>
-Device Requirements:<br>
+Installation Specifications:<br>
 Windows 11<br>
 RTX 4070 Super<br>
 Anaconda Navigator <br>
@@ -27,3 +29,7 @@ PyTorch version: 2.5.1 (basically PyTorch version: 2.x.x)
 CUDA available: True
 GPU: NVIDIA GeForce RTX 4070 SUPER
 ```
+
+# Computer vision.ipynb
+This notebook contains the script cv_demo.py<br>
+The script deals with binary image classification (synthetic “surveillance” images): circle (class 0, simulate “person”) vs square (class 1, simulate “vehicle”).
