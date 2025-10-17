@@ -31,8 +31,6 @@ GPU: NVIDIA GeForce RTX 4070 SUPER
 ```
 
 # CV1.ipynb
-This notebook contains the script cv_tinkering.py
+The notebook deals with binary image classification (synthetic “surveillance” images): circle (class 0, simulate “person”) vs square (class 1, simulate “vehicle”).
 
-The script deals with binary image classification (synthetic “surveillance” images): circle (class 0, simulate “person”) vs square (class 1, simulate “vehicle”).
-
-The script uses a synthetic shapes dataset.
+The notebook uses a synthetic shapes dataset.
