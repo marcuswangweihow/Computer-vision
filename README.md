@@ -34,3 +34,8 @@ GPU: NVIDIA GeForce RTX 4070 SUPER
 The notebook deals with binary image classification (synthetic “surveillance” images): circle (class 0, simulate “person”) vs square (class 1, simulate “vehicle”).
 
 The notebook uses a synthetic shapes dataset.
+
+# CV with LLM.ipynb
+The notebook builds on the knowledge learned in cv1 and applies a faster R-CNN model trained on a synthetic dataset.
+
+This is also combined with a NLP/LLM setup to output suggested actions/prompts from a list based on the detected entities. 
