@@ -1,0 +1,74 @@
+import re
+import datetime
+import json
+from transformers import pipeline
+
+"""
+Extract structured metadata from a text report or prompt.
+Combines regex, NER, and rule-based reasoning.
+"""
+
+# possible model for text analysis
+NER_MODEL = "dslim/bert-base-NER"
+ner_pipe = pipeline("ner", model=NER_MODEL, aggregation_strategy="simple")
+
+def text_to_metadata(text, timestamp=None):
+
+    # Add timestamp
+    ts = timestamp or datetime.datetime.utcnow().isoformat() + "Z"
+    metadata = {"timestamp": ts, "entities": [], "events": [], "actions": []}
+
+    # Named entity recognition (for persons, locations, orgs, etc.)
+    ner_results = ner_pipe(text)
+    for ent in ner_results:
+        if ent["entity_group"].lower() in ["person", "organization", "location"]:
+            metadata["entities"].append({
+                "type": ent["entity_group"].lower(),
+                "value": ent["word"]
+            })
+
+    # Object inference (simple logic/heuristics)
+    object_patterns = {
+        "vehicle": r"\bvehicle|car|truck|van|motorcycle|lorry\b",
+        "person": r"\bperson|man|woman|individual|guard|intruder\b"
+    }
+
+    for obj_type, pattern in object_patterns.items():
+        matches = re.findall(pattern, text, re.IGNORECASE)
+        if matches:
+            metadata["entities"].append({
+                "type": obj_type,
+                "count": len(matches)
+            })
+
+    # Event classification
+    # search through the entire text string to check if any of the listed keywords appear
+    if re.search(r"unauthorized|suspicious|intruder|breach", text, re.IGNORECASE):
+        metadata["events"].append({
+            "type": "suspicious_activity",
+            "severity": "high" if "intruder" in text.lower() else "medium"
+        })
+    elif re.search(r"parked|vehicle|patrol", text, re.IGNORECASE):
+        metadata["events"].append({
+            "type": "surveillance_observation",
+            "severity": "low"
+        })
+
+    # Extract recommended actions
+    # looks for action or instruction phrases in the text
+    # regex search for specific words in text
+    actions = re.findall(r"(?<=action:)[^.\n]+|(?<=should)\s+[^.\n]+", text, re.IGNORECASE)
+    if actions:
+        metadata["actions"] = [a.strip().capitalize() for a in actions]
+
+    # Deduplicate entities by type + value
+    unique_entities = []
+    seen = set()
+    for e in metadata["entities"]:
+        key = (e.get("type"), e.get("value"))
+        if key not in seen:
+            seen.add(key)
+            unique_entities.append(e)
+    metadata["entities"] = unique_entities
+
+    return metadata
