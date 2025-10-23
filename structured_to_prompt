@@ -1,0 +1,49 @@
+import datetime
+
+"""
+Convert structured object detection outputs into a LLM prompt.
+
+detections: list of dicts
+    [{"label": "vehicle", "confidence": 0.92, "bbox": [x1, y1, x2, y2]},
+     {"label": "person", "confidence": 0.87, "bbox": [x1, y1, x2, y2]}]
+
+metadata: optional dict, e.g. 
+    {"camera_id": "A1", "timestamp": "2025-10-18T10:22:00Z"}
+
+returns: string, formatted prompt
+"""
+
+def structured_to_prompt(detections, metadata=None):
+
+    # Add timestamp and context
+    now = datetime.datetime.utcnow().isoformat() + "Z"
+    context = f"Timestamp: {metadata.get('timestamp', now)}\n" if metadata else f"Timestamp: {now}\n"
+    
+    if metadata and "camera_id" in metadata:
+        context += f"Camera ID: {metadata['camera_id']}\n"
+    
+    # Summarize detections
+    if not detections:
+        det_summary = "No objects detected in this frame."
+    else:
+        counts = {}
+        for d in detections:
+            lbl = d["label"].lower()
+            counts[lbl] = counts.get(lbl, 0) + 1
+    
+        det_summary = ", ".join([f"{v} {k}(s)" for k, v in counts.items()])
+    
+    # Build prompt with a reasoning task
+    # prompt can be as specific as necessary
+    prompt = (
+        "You are an on-premise security analysis assistant.\n"
+        "Interpret the following structured detections from a restricted surveillance system.\n"
+        "Do not output sensitive coordinates or identifiers.\n\n"
+        f"{context}\n"
+        f"Detected objects summary: {det_summary}\n\n"
+        "Based on these detections, describe what might be happening, "
+        "identify any potential security concerns, and suggest next steps in plain language.\n"
+        "Your response must remain within operational security guidelines."
+    )
+    
+    return prompt
