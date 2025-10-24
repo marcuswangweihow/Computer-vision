@@ -36,6 +36,9 @@ The notebook deals with binary image classification (synthetic â€œsurveillanceâ€
 The notebook uses a synthetic shapes dataset.
 
 # CV with LLM.ipynb
+Additional dependency:
+Sympy version 1.14.0
+
 The notebook builds on the knowledge learned in cv1 and applies a faster R-CNN model trained on a synthetic dataset.
 
 This is also combined with a NLP/LLM setup to output suggested actions/prompts from a list based on the detected entities. 
